@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#dcecf5">
+<title>Анэль — Кыз Узатуу</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#dcecf5;overflow-x:hidden}body{font-family:Arial,sans-serif}.page{position:relative;min-height:100vh;width:100%;background:#dcecf5}.designFrame{position:relative;width:min(100%,1280px);margin:0 auto;line-height:0}.design{display:block;width:100%}.design img{display:block;width:100%;height:auto;max-width:none;margin:0;padding:0;user-select:none;-webkit-user-drag:none}.rsvpHotspots{position:absolute;z-index:10;left:42.1%;top:75.61%;width:46.9%;height:6.1%;pointer-events:none}.rsvpHotspots>*{pointer-events:auto}.nameHotspot{position:absolute;left:2.2%;top:2%;width:95.2%;height:30%;display:block}.nameHotspot input{width:100%;height:100%;border:0;outline:0;background:transparent;color:#004e78;font-size:clamp(11px,1.15vw,16px);padding:0 2.4%}.choiceHotspot{position:absolute;display:block;width:45%;height:32%;cursor:pointer}.choiceYes{left:1.5%;top:33%}.choiceNo{left:49%;top:33%;width:50%}.choiceHotspot input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}.confirmHotspot{position:absolute;left:1.5%;bottom:0;width:32%;height:29%;padding:0;margin:0;border:0;background:transparent;cursor:pointer}.formStatus{position:absolute;left:1.5%;top:108%;z-index:20;max-width:80%;padding:8px 10px;background:rgba(255,255,255,.9);color:#004e78;font:12px/1.25 Arial,sans-serif;white-space:nowrap;box-shadow:0 6px 20px rgba(0,78,120,.08)}.music{position:fixed;z-index:50;top:20px;right:20px;width:42px;height:42px;border:1px solid rgba(0,78,120,.3);border-radius:50%;background:rgba(255,255,255,.58);color:#004e78;font:20px/1 Georgia,serif;cursor:pointer}.srOnly{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}@media(max-width:700px){.designFrame{width:100%}.music{top:12px;right:12px;width:36px;height:36px;font-size:17px}.rsvpHotspots{left:10.9%;top:78.96%;width:78.2%;height:3.99%}.nameHotspot input{font-size:9.5px;padding:0 3%}.formStatus{font-size:9px;top:108%}}
+</style>
+</head>
+<body>
+<main class="page">
+<button class="music" id="musicBtn" aria-label="Включить музыку">♪</button>
+<div class="designFrame">
+<picture class="design"><source media="(max-width:700px)" srcset="/assets/mobile.svg"><img src="/assets/desktop.svg" alt="Приглашение на кыз узатуу" draggable="false"></picture>
+<form class="rsvpHotspots" id="rsvp" aria-label="Подтверждение присутствия">
+<label class="nameHotspot"><span class="srOnly">Ваше имя</span><input id="name" aria-label="Ваше имя" autocomplete="name"></label>
+<label class="choiceHotspot choiceYes"><input type="radio" name="attendance" value="Буду" checked><span class="srOnly">Я буду</span></label>
+<label class="choiceHotspot choiceNo"><input type="radio" name="attendance" value="Не смогу присутствовать"><span class="srOnly">Не смогу присутствовать</span></label>
+<button class="confirmHotspot" id="confirm" type="submit" aria-label="Подтвердить"><span class="srOnly">Подтвердить</span></button>
+<div class="formStatus" id="status" hidden></div>
+</form></div></main>
+<script>
+const audio=new Audio('/music.mp3');audio.loop=true;audio.preload='auto';
+const musicBtn=document.getElementById('musicBtn');let musicOn=false;
+musicBtn.addEventListener('click',async()=>{try{if(musicOn){audio.pause();musicOn=false;musicBtn.textContent='♪';}else{await audio.play();musicOn=true;musicBtn.textContent='Ⅱ';}}catch(e){musicOn=false;}});
+const form=document.getElementById('rsvp'),status=document.getElementById('status'),nameEl=document.getElementById('name'),confirm=document.getElementById('confirm');
+form.addEventListener('submit',async e=>{e.preventDefault();const name=nameEl.value.trim();const attendance=document.querySelector('input[name="attendance"]:checked')?.value;if(!name){status.hidden=false;status.textContent='Пожалуйста, укажите имя.';return;}confirm.disabled=true;status.hidden=true;try{const r=await fetch('/api/telegram',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name,attendance})});if(!r.ok)throw new Error();status.hidden=false;status.textContent='Спасибо, ваш ответ получен.';nameEl.value='';}catch(e){status.hidden=false;status.textContent='Ответ не отправился. Проверьте настройки Telegram.';}finally{confirm.disabled=false;}});
+</script>
+</body></html>
